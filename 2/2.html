@@ -1,0 +1,154 @@
+<html>
+      <head></head>
+      <body>
+            <input type="text" id="depth" value="">
+            <button onclick="doDraw()">Draw</button>
+            <canvas id="canvas" width="400" height="400"></canvas>
+      </body>
+</html>
+
+<script>
+      const length = 400;
+      let canvas = document.getElementById('canvas');
+      let ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.lineWidth = 1;
+
+      function drawLine(x1, y1, x2, y2){
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+      }      
+
+      function doDraw(){
+            doClear();
+            let depth = parseInt(document.getElementById("depth").value) ;
+            if(depth>5) depth = 5;
+            let KF = new KochFractal(depth);
+            // console.log(depth, KF.lines);
+            ctx.beginPath();
+            KF.draw();
+            ctx.closePath();
+            ctx.stroke();
+      }
+      function doClear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height) ;
+      }
+
+      class KochLine {
+            constructor(a,b) {
+                  this.start = a;
+                  this.end = b;
+            }
+
+            display() {
+                  // drawline(this.start[0], this.start[1], this.end[0], this.end[1]);
+                  ctx.moveTo(this.start[0], this.start[1]);
+                  ctx.lineTo(this.end[0], this.end[1]);
+            }
+
+            kochA() {
+                  return this.start;
+            }
+
+            kochB() {
+                  let v = this.vSub(this.start,this.end);
+                  v = this.vMult(v,24/50);
+                  v = this.vAdd(v,this.start);
+                  return v;
+            }
+
+            kochC() {
+                  let a = this.start;
+                  let v = this.vSub(this.start, this.end);
+                  v = this.vDiv(v,2);
+                  a = this.vAdd(v,a);
+                  v = this.vRotate(v,-Math.PI/2);
+                  a = this.vAdd(v,a);
+                  return a;
+            }
+
+            kochD() {
+                  let v = this.vSub(this.start, this.end);
+                  v = this.vMult(v, 26/50.0);
+                  v = this.vAdd(v, this.start);
+                  return v;
+            }
+
+            kochE() {
+                  return this.end;
+            }
+      
+            vSub(A, B){
+                  let x = B[0] - A[0];
+                  let y = B[1] - A[1];
+                  return [x,y];
+            }
+            vAdd(A,B){
+                  let x = B[0] + A[0];
+                  let y = B[1] + A[1];
+                  return [x,y];
+            }
+            vMult(A,num){
+                  A[0]*=num;
+                  A[1]*=num;
+                  return A;
+            }
+            vDiv(A,num){
+                  A[0]/=num;
+                  A[1]/=num;
+                  return A;
+            }
+            vRotate (V, num){
+                  let x = V[0]*Math.cos(num) - V[1]*Math.sin(num);//x
+                  let y = V[0]*Math.sin(num) - V[1]*Math.cos(num);//y
+                  return [x,y];
+            }
+      }
+
+      class KochFractal{
+            constructor(level){
+                  this.start = [0,length-20];
+                  this.end = [length,length-20];
+                  this.lines = [];
+                  this.lines.push(new KochLine(this.start,this.end));
+                  for(let i = 0; i<level;i++)
+                        this.lines = this.iterate();
+            }
+
+            reset(){
+                  this.lines = [];
+                  this.lines.push(new KochLine(this.start,this.end));
+            }
+
+            set(level){
+                  this.reset();
+                  for(let i = 0; i<level;i++)
+                        this.lines = this.iterate();
+            }
+
+            draw(){
+                  for(let i = 0;i<this.lines.length;i++){
+                        this.lines[i].display();
+                  }
+            }
+
+            iterate() {
+                  let now = [];
+                  for(let i = 0; i < this.lines.length; i++) {
+                        let l = this.lines[i];
+                        // Calculate 5 koch p5.Vectors (done for us by the line object)
+                        let a = l.kochA();
+                        let b = l.kochB();
+                        let c = l.kochC();
+                        let d = l.kochD();
+                        let e = l.kochE();
+                        // Make line segments between all the p5.Vectors and add them
+                        now.push(new KochLine(a,b));
+                        now.push(new KochLine(b,c));
+                        now.push(new KochLine(c,d));
+                        now.push(new KochLine(d,e));
+                  }
+                  return now;
+            }
+      }
+</script>

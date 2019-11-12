@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+      <input type="text" id="depth" value="">
+      <button onclick="doDraw()">Draw</button>
+      <canvas id="canvas" width="400" height="400"></canvas>
+</body>
+
+<script>
+      const length = 100;
+      let canvas = document.getElementById('canvas');
+      let ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.lineWidth = 1;
+      var deg_to_rad = Math.PI / 180.0;
+
+      function drawLine(x1, y1, x2, y2){
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+      }      
+
+      function drawCross(x1, y1, depth,len,pos){
+            let x2, y2;
+            if(depth!=0){
+                  for(let i = 0; i<4;i++){
+                        x2 = x1 + (Math.cos(90*i * deg_to_rad)*len);
+                        y2 = y1 + (Math.sin(90*i * deg_to_rad)*len);
+                        if(pos!=i){
+                              drawLine(x1,y1,x2,y2);
+                              drawCross(x2,y2,depth-1,len/2,(i+2)%4);
+                        }
+                  }
+            }
+      }
+
+      function doDraw(){
+            doClear();
+            let depth = parseInt(document.getElementById("depth").value) ;
+            if(depth>10) depth = 10;
+            ctx.beginPath();
+            drawCross(200,200,depth,length,4);
+            ctx.closePath();
+            ctx.stroke();
+      }
+      function doClear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height) ;
+      }
+</script>
+</html>

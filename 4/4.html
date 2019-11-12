@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+      <head></head>
+      <body>
+            <p>Input Ex: [[0,0],[1,1],[20,40],...]</p>
+            <input type="text" id="depth" width="800" value="[[1,1],[10,40],[40,80],[80,40],[40,5]]">
+            <button onclick="doDraw()">Draw</button>
+            <canvas id="canvas" width="400" height="400"></canvas>
+      </body>
+</html>
+
+<script>
+      const length = 400;
+      let canvas = document.getElementById('canvas');
+      let ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#000';
+      ctx.lineWidth = 1;
+
+      class vec{
+            constructor(){
+
+            }
+      }
+
+      function doDraw(){
+            doClear();
+            let depth = document.getElementById("depth").value;
+            console.log(depth);
+            ctx.beginPath();
+            for(let i =1;i < depth.length;i++){
+                  drawLine(depth[i-1][0],depth[i-1][1],depth[i][0],depth[i][1]);
+            }
+            ctx.closePath();
+            ctx.stroke();
+      }
+
+      function doClear() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height) ;
+      }
+      
+      function drawLine(x1, y1, x2, y2){
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+      }      
+
+</script>
