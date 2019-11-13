@@ -98,12 +98,12 @@ void trimP(char *temp){
 }
 
 char** count(const char temp[128], int* a){
-      char buf[128] ="";
       int start = 0, end = 0, j = 0, sz = 4;
       int flag = 0;
       char** str = (char**)malloc(sizeof(char*)*sz);
 
       for(int i =0; i<128;i++){
+            char buf[128] ="";
             switch(temp[i]){
                   case '(': //block start
                         flag++;
@@ -117,11 +117,13 @@ char** count(const char temp[128], int* a){
                               end = i;
                               if(start !=end){
                                     strncpy(buf,temp+start,end - start);
+                                    // printf("%s\n", buf);
                                     if(j>sz-1){//if assigned size of strings are too small, it will double its capacity.
                                           sz*=2;
                                           str = (char**)realloc(str,sizeof(char*)*sz);
                                     }
                                     str[j] = (char*)malloc(sizeof(char)*64);
+                                    str[j][0] = '\0';
                                     strcpy(str[j],buf);
                                     // printf("%d: %s\n",j,str[j]);
                                     j++;
@@ -139,7 +141,10 @@ char** count(const char temp[128], int* a){
       return str;
 }
 
+
+
 node* parse(char temp[128]){
+      // printf("%s\n",temp);
       char buf[16] = "";
       int intro;
       node* a= (node*)malloc(sizeof(node));
@@ -294,6 +299,18 @@ node* cnf(node* root){
       return root;
 }
 
+int checkCNF(node* root){
+      if(root->type == 0) return 1;
+      for(int i =0; i<root->num;i++){
+            node* child = root->values[i];
+            if(child->type ==0) continue;
+            if(root->complex==root->values[i]->complex) return 0;
+            if(root->complex==1&&root->values[i]->complex==0) return 0;
+            if(checkCNF(root->values[i])==0) return 0;
+      }
+      return 1;
+}
+
 int compare(node* a, node* b){
       //simple
       //complex
@@ -354,27 +371,68 @@ void sortNode(node** root){
       }
 }
 
-int checkError(char temp[128]){
+/* 0 - Error 1 - NoError*/
+int checkNode(node* root){
+      if(root->type==1){
+            if(root->complex==2){
+                  if(root->num!=1) return 0;
+            }
+            else {
+                  if(root->num<1) return 0;
+            }
+            for(int i =0; i<root->num;i++){
+                  checkNode(root->values[i]);
+            }
+      }
+      else if(root->value<0) return 0;
+      else return 1;
+}
 
+int checkError(char temp[128]){
+      int p = 1;
+      if(temp[0]!='(') return 0;
+      for(int i =1; i<128; i++){
+            switch(temp[i]){
+                  case 'a': case 'o': case 'r':case 'n': case 't': case 'd': //legal char
+                  case '0': case '1': case '2': case '3': case '4':
+                  case '5': case '6': case '7': case '8': case '9':
+                  case ' ': case '\0':
+                        break;
+                  case '(':p++; break;
+                  case ')':p--; break;
+                  default:
+                        return 0;
+            }
+            if(temp[i]=='\0') break;
+            if(p<0) return 0;
+      }
+      if(p!=0) return 0;
+      return 1;
+}
+
+void terminate(){
+      printf(" =================================== \n");
+      printf(" CNF CONVERTER: INVALID INPUT \n");
+      printf("\n Allowed chars (n for integer): \n");
+      printf(" and or not ( ) a1 a2 a3 ... an \n");
+      printf("\n Input has to be in following form: \n");
+      printf(" EX) (or a1 (not (and a2 a3)))\n");
+      printf("Please Fix your input \n");
+      printf(" =================================== \n");
+      exit(0);
 }
 
 int main(){
-      // char temp[128] = "(or (and a1 (not a2)) (not (and a3 (or a4 a5))))";
-      // char temp[128] = "(or a1 (and a2 a3) (and a4 (or a5 a6)))";
-      // char temp[128] = "(or a1 (not (or (not (or a2 a3)) a4)))";
       char temp[128]="";
       gets(temp,128);
-      if(checkError(temp)){
-            printf("\n CNF CONVERTER: INVALID INPUT \n");
-            printf("\n Input has to be in following form: \n");
-            printf(" EX) (or a1 (not (and a2 a3)))\n\n");
-            return -1;
-      }
-      // printf("%s\n",temp);
+      if(checkError(temp)==0) terminate();
       node* root = parse(temp);
+      if(checkNode(root)==0) terminate();
       nnf(root);
-      root = cnf(root);
-      root = cnf(root); //refines the tree with commutative laws
+      // printNodeDebug(root,0);
+      while(checkCNF(root)==0){
+            root = cnf(root);
+      }
       sortNode(&root);
       // printNodeDebug(root,0);
       printNode(root);

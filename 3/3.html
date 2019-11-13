@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <canvas id="canvas" width="400" height="400"></canvas>
+    </head>
+    <body></body>
+</html>
+
+
+<script>
+    const length = 400;
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000';
+    ctx.lineWidth = 2;
+    let d = 1;
+    let wind = true;
+    let playAlert = setInterval(async function(){
+        doClear();
+        drawSpiral(200,200,length/2,d);
+        if(wind)d++;
+        else d--;
+        if(d == 10) wind = false;
+        else if(d==1) wind = true;
+    },300);
+
+    function doClear() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height) ;
+    }
+
+    function drawSpiral(x,y,r,n){
+        if(n>0){
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+            if(n%2==0)ctx.fillStyle = 'black';
+            else ctx.fillStyle = 'white';
+            ctx.fill();
+            ctx.closePath();
+            ctx.stroke();
+            drawSpiral(x-r/3,y,r*2/3,n-1);
+        }
+    }
+
+</script>
