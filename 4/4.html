@@ -2,173 +2,172 @@
 
 <!DOCTYPE html>
 <html>
-  <body>
-    <input type="text" id="points" value="">
-    <button onclick="doDraw()">Draw</button>
-    <button onclick="doClear()">Clear</button>
-    <br>
-    <canvas id="canvas" width="100" height="100"></canvas>
+<body>
 
-    <script type="text/javascript">
 
-    /*
-    how to run the progrom
-    1. put input values in TextBox objects
-    2. Input values should be put as such
-        e.g. "(1,1),(40,10),(80,40),(40,80),(5,40)"
-          or "1,1,40,10,80,40,40,80,5,40"
-    3. Input values of the polygon should be counterclockwise
-    */
+<input type="text" id="points" value="">
+<button onclick="doDraw()">Draw</button>
+<button onclick="doClear()">Clear</button>
+<br>
+<canvas id="canvas" width="100" height="100"></canvas>
+<p>how to run the progrom<br>
+1. put input values in TextBox objects<br>
+2. Input values should be put as such<br>
+    e.g. "(1,1),(40,10),(80,40),(40,80),(5,40)"<br>
+      or "1,1,40,10,80,40,40,80,5,40"<br>
+3. Input values of the polygon should be counterclockwise </p>
+<br>
 
-    var elem = document.getElementById('canvas');
-    var context = elem.getContext('2d');
-    context.fillStyle = '#000';
-    context.lineWidth = 1;
+<script type="text/javascript">
 
-    function drawLine(dotnum1,dotnum2){
-      context.moveTo(dotnum1.x, dotnum1.y);
-      context.lineTo(dotnum2.x, dotnum2.y);
+
+
+var elem = document.getElementById('canvas');
+var context = elem.getContext('2d');
+context.fillStyle = '#000';
+context.lineWidth = 1;
+
+function drawLine(dotnum1,dotnum2){
+  context.moveTo(dotnum1.x, dotnum1.y);
+  context.lineTo(dotnum2.x, dotnum2.y);
+}
+
+
+function checkThisCross(dotnum,dotnum_1,dotnum_2,countdot1,newdot,countnewdot_1){
+   var zero1 = 0;
+   for(var a=0; a<countdot1; a++){
+        zero1+=checkCross(dotnum_1,dotnum_2,dotnum[a],dotnum[a+1]);
     }
-
-    function checkThisCross(dotnum,dotnum_1,dotnum_2,countdot1,newdot,countnewdot_1){
-      var zero1 = 0;
-      for(var a=0; a<countdot1; a++){
-            zero1+=checkCross(dotnum_1,dotnum_2,dotnum[a],dotnum[a+1]);
-        }
-      if(countnewdot_1!=0){
-      for(b=0;b<countnewdot_1;b+=2){
-        zero1+=checkCross(dotnum_1,dotnum_2,newdot[b],newdot[b+1]);   
-      }
-          
-      }
-      if(zero1!=0)
-          return false; 
-      else
-          return true;
-    }
-
-    function checkSimple(dotnum,countdot1){
-
-      var zero = 0;
-      for(a=0;a<countdot1;a++){   
-
-        for(b=a+1,countfor=0;countfor<countdot1-1;b++,countfor++){
-          
-
-        if(b==countdot1){
-                b=0;
-              }
-        zero+=checkCross(dotnum[a],dotnum[a+1],dotnum[b],dotnum[b+1]);
-
-        }
-      }
+   if(countnewdot_1!=0){
+   for(b=0;b<countnewdot_1;b+=2){
+    zero1+=checkCross(dotnum_1,dotnum_2,newdot[b],newdot[b+1]);   
+   }
       
-      if(zero!=0){
-        alert("It is not a simple polygon");
+   }
+   if(zero1!=0)
+      return false; 
+   else
+      return true;
+}
+
+
+function checkSimple(dotnum,countdot1){
+
+  var zero = 0;
+  for(a=0;a<countdot1;a++){   
+    for(b=a+1,countfor=0;countfor<countdot1-1;b++,countfor++){
+     if(b==countdot1){
+            b=0;
+          }
+    zero+=checkCross(dotnum[a],dotnum[a+1],dotnum[b],dotnum[b+1]);
 
     }
+  }
+  if(zero!=0){
+    alert("It is not a simple polygon");
+}
+}
+
+
+function drawOutline(dotnum,countdot){
+  for(var a=0;a < countdot; a++){
+      drawLine(dotnum[a],dotnum[a+1]);
     }
+} 
 
-
-    function drawOutline(dotnum,countdot){
-      for(var a=0;a < countdot; a++){
-          drawLine(dotnum[a],dotnum[a+1]);
-        }
-    } 
-
-    function isBetweenwAngle(dotnum, dotnum_before, dotnum_after, dotnum_goto){
-        if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_after)){
-            if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_goto) && getAngle(dotnum, dotnum_after) < getAngle(dotnum, dotnum_goto) ){
-                    return true;
-                }else{
-                    return false;
-                }
-        } else{
-            if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_goto) || getAngle(dotnum, dotnum_after) < getAngle(dotnum, dotnum_goto) ){
-                    return true;
-                }else{
-                    return false;
-                }
-        }
-    } // dotnum이 기준, 그 점에 전점과 다음점이 이루는 각 사이에 dotnum_goto가 있는지
-
-
-    function getAngle(dotnum1,dotnum2) {
-      var rad = Math.atan2(dotnum2.y - dotnum1.y, dotnum2.x - dotnum1.x);
-      return (rad*180)/Math.PI;
+function isBetweenwAngle(dotnum, dotnum_before, dotnum_after, dotnum_goto){
+    if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_after)){
+        if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_goto) && getAngle(dotnum, dotnum_after) < getAngle(dotnum, dotnum_goto) ){
+                return true;
+            }else{
+                return false;
+            }
+    } else{
+        if(getAngle(dotnum, dotnum_before) > getAngle(dotnum, dotnum_goto) || getAngle(dotnum, dotnum_after) < getAngle(dotnum, dotnum_goto) ){
+                return true;
+            }else{
+                return false;
+            }
     }
-    //각도구하기
+} // dotnum이 기준, 그 점에 전점과 다음점이 이루는 각 사이에 dotnum_goto가 있는지
 
-    function checkDivide(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2){
-        f1= (dotnum1_2.x-dotnum1_1.x)*(dotnum2_1.y-dotnum1_1.y) - (dotnum1_2.y-dotnum1_1.y)*(dotnum2_1.x-dotnum1_1.x);
-        f2= (dotnum1_2.x-dotnum1_1.x)*(dotnum2_2.y-dotnum1_1.y) - (dotnum1_2.y-dotnum1_1.y)*(dotnum2_2.x-dotnum1_1.x);
-        if (f1*f2 < 0)
-          return true;
-        else
-          return false;
-    }
 
-    function checkCross(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2){
-      a1 = checkDivide(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2);
-      a2 = checkDivide(dotnum2_1,dotnum2_2,dotnum1_1,dotnum1_2);
-        if (a1 && a2)
-            return 1; 
-        else
-          return 0;
-    }
+function getAngle(dotnum1,dotnum2) {
+   var rad = Math.atan2(dotnum2.y - dotnum1.y, dotnum2.x - dotnum1.x);
+   return (rad*180)/Math.PI;
+}
+//각도구하기
 
-    function drawTriangulation(dotnum, newdot, countdot_1){
-        var countnewdot=0;
-        for(var a=1; a < countdot_1; a++){
-            for(var b=a+2, countloop=0; countloop < countdot_1-3; b++, countloop++){
-                if(b>=countdot_1)
-                    b=0;
-                if(isBetweenwAngle(dotnum[a],dotnum[a-1],dotnum[a+1],dotnum[b])){//okey
-                    if(checkThisCross(dotnum,dotnum[a],dotnum[b],countdot_1,newdot,countnewdot)){
-                        drawLine(dotnum[a], dotnum[b]);
-                        newdot.push({ x: dotnum[a].x, y:dotnum[a].y});
-                        newdot.push({ x: dotnum[b].x, y:dotnum[b].y});
-                        countnewdot+=2;
-                    }
+function checkDivide(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2){
+    f1= (dotnum1_2.x-dotnum1_1.x)*(dotnum2_1.y-dotnum1_1.y) - (dotnum1_2.y-dotnum1_1.y)*(dotnum2_1.x-dotnum1_1.x);
+    f2= (dotnum1_2.x-dotnum1_1.x)*(dotnum2_2.y-dotnum1_1.y) - (dotnum1_2.y-dotnum1_1.y)*(dotnum2_2.x-dotnum1_1.x);
+    if (f1*f2 < 0)
+      return true;
+    else
+      return false;
+}
+
+function checkCross(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2){
+   a1 = checkDivide(dotnum1_1,dotnum1_2,dotnum2_1,dotnum2_2);
+   a2 = checkDivide(dotnum2_1,dotnum2_2,dotnum1_1,dotnum1_2);
+    if (a1 && a2)
+        return 1; 
+    else
+       return 0;
+}
+
+function drawTriangulation(dotnum, newdot, countdot_1){
+    var countnewdot=0;
+    for(var a=1; a < countdot_1; a++){
+        for(var b=a+2, countloop=0; countloop < countdot_1-3; b++, countloop++){
+            if(b>=countdot_1)
+                b=0;
+            if(isBetweenwAngle(dotnum[a],dotnum[a-1],dotnum[a+1],dotnum[b])){//okey
+                if(checkThisCross(dotnum,dotnum[a],dotnum[b],countdot_1,newdot,countnewdot)){
+                    drawLine(dotnum[a], dotnum[b]);
+                    newdot.push({ x: dotnum[a].x, y:dotnum[a].y});
+                    newdot.push({ x: dotnum[b].x, y:dotnum[b].y});
+                    countnewdot+=2;
                 }
             }
         }
     }
+}
 
 
-    //checkDivede,checkCross로 두 선분 교차하는지 확인
+//checkDivede,checkCross로 두 선분 교차하는지 확인
 
-    function doDraw(){
-      var points = document.getElementById("points").value;
-      var point = points.split(",");
-      var i = 0;
-      for(i in point){
-        point[i] = point[i].replace(/[^0-9]/g,'');
-      }
-      var dotnum = [];
-      for(var a = 0; a<i; a=a+2){
-      dotnum.push({ x: point[a], y: point[a+1]});
-    }
-      dotnum.push({ x: point[0], y: point[1]});
-      
-      
-      var countdotnum = point.length/2;
-      var newdot = [];
-      context.beginPath();
+function doDraw(){
+  var points = document.getElementById("points").value;
+  var point = points.split(",");
+  var i = 0;
+  for(i in point){
+    point[i] = point[i].replace(/[^0-9]/g,'');
+  }
+  var dotnum = [];
+  for(var a = 0; a<i; a=a+2){
+  dotnum.push({ x: point[a], y: point[a+1]});
+}
+  dotnum.push({ x: point[0], y: point[1]});
+  
+  
+  var countdotnum = point.length/2;
+  var newdot = [];
+  context.beginPath();
 
-      drawOutline(dotnum, countdotnum);
-      drawTriangulation(dotnum, newdot, countdotnum);  
+  drawOutline(dotnum, countdotnum);
+  drawTriangulation(dotnum, newdot, countdotnum);  
 
-      
-      context.closePath();
-      context.stroke();
-    }
+  
+  context.closePath();
+  context.stroke();
+}
 
-    function doClear() {
-      context.clearRect(0, 0, canvas.width, canvas.height) ;
-    }
+function doClear() {
+  context.clearRect(0, 0, canvas.width, canvas.height) ;
+}
 
-    </script>
+</script>
 
-  </body>
+</body>
 </html>
